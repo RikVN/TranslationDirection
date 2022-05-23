@@ -1,0 +1,4 @@
+tabulate
+transformers
+sklearn
+torch
