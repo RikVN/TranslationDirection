@@ -4,7 +4,7 @@ Code for experiments regarding determining translation direction of parallel sen
 
 ## Getting started
 
-Setup a Conda environment and download the requirements:
+Setup a Conda environment:
 
 ```
 conda create -n trdi
@@ -23,7 +23,9 @@ pip install -r requirements.txt
 
 ### Europarl Extract Preprocessing
 
-The following steps are added for completeness, but will take quite a long time. You can also immediately to [Our preprocessing][#our-preprocessing] below and just download the preprocessed files.
+The following steps are added for completeness, but will take quite a long time. 
+
+**You can also immediately to [Our preprocessing](#our-preprocessing) below and just download the preprocessed files.**
 
 If you want to do your own preprocessing from scratch, take the following steps:
 
@@ -131,10 +133,10 @@ All experimental files are saved in ``exps/example/``, in different subfolders. 
 
 If you just want to parse a file with an already trained model, use ``src/parse.sh``. You have to specify the model folder, the file with sentence-pairs and the LM identifier.
 
-If you have sentence file $SENT, you get the predictions in ${SENT}.pred and the probabilities in ${SENT}.pred.prob.
+If you have sentence file SENT, you get the predictions in SENT.pred and the probabilities in SENT.pred.prob.
 
 For example, for the model we just trained:
 
 ```
-./src/parse.sh exps/example/models/ $SENT xlm-roberta-base
+./src/parse.sh exps/example/models/ SENT xlm-roberta-base
 ```
