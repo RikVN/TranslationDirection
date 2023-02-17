@@ -160,6 +160,8 @@ def main():
 
     # Set order of labels (important!), as this was automatically determined during training,
     # so we have to use the same order for the predictions to make sense
+    # If you used our randomize_order.py script to get the data, the labels
+    # should always be in order of first-orig second-orig
     if args.invert:
         labels = ['second-orig', 'first-orig']
     else:

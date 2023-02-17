@@ -109,7 +109,7 @@ def read_data(corpus_file, limit_train):
     for line in open(corpus_file, 'r'):
         l = line.strip().split('\t')
         if len(l) > 3:
-            raise ValueError("Data lines should only contain 1 tab:\n {0}".format(line.strip()))
+            raise ValueError("Data lines should contain 3 tabs, this has:\n {0}".format(line.strip()))
         documents.append([l[0], l[1]])
         labels.append(l[2])
     if limit_train:

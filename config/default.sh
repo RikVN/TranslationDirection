@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set data variables
-# Either specify here or set in your own config file
+# Either specify here or set in your own config file!
 train_file=""
 dev_file=""
 files_to_parse="v1/en/dev" # add as "file1 file2 file3"

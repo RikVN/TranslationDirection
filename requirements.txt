@@ -1,4 +1,7 @@
 tabulate
 transformers
-sklearn
+scikit-learn
 torch
+pandas
+unidecode
+sacrebleu
