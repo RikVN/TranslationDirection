@@ -12,7 +12,7 @@ limit_train="0" # 0 means no limit
 cont="" # use as -c $MODEL_FOLDER to continue training
 
 # Model and training variables
-lm_ident="xlm-roberta-large" # Specify in your config file a different one for non-English
+lm_ident="xlm-roberta-large" # You can specify a different one in your own config as well
 strategy="epoch"
 batch_size="64"
 patience="1" # Earlystopping patience

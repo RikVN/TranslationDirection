@@ -2,6 +2,12 @@
 
 This is the annotated version of our preprocessing for the data used in translation direction experiments.
 
+You can either follow those instructions step by step, or just simply run:
+
+```
+./src/data_preprocessing.sh
+```
+
 We will process the Europarl data to sentence-level and document-level. For document-level, **note** that we set a max length so it still fits in the model size of the LM we use. In our case XLM-R, which has at most 512 tokens. Giving some room for special tokens, we set a max of 500 tokens per document.
 
 ```
@@ -145,4 +151,4 @@ for lang in sl hr; do
 done
 ```
 
-Now preprocessing is complete! For training and parsing, go back to the main [README][README.md].
+Now preprocessing is complete! For training and parsing, go back to the main [README](README.md).
