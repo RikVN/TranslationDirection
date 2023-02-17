@@ -100,7 +100,7 @@ unzip europarl_preprocessed.zip
 cd ../
 ```
 
-There are a lot of preprocessing steps. They are annotated in the [preprocessing README][preprocessing.md].
+There are a lot of preprocessing steps. They are annotated in the [preprocessing README](preprocessing.md).
 
 You can either follow those instructions step by step, or just simply run:
 
