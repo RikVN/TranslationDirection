@@ -11,11 +11,11 @@ set -eu -o pipefail
 # Read in arguments:
 # $1: model folder
 # $2: sentence file
-# $3: LM identifier (e.g. xlm-roberta-large)
+# $3: LM identifier (e.g. xlm-roberta-base)
 
 echo "Predicting on $2..."
 
-# Make sure to check the order of the labels in lm_parse.py
+# Make sure to check the order of the labels in src/parse.py
 python src/parse.py --model $1 --sent_file $2 --lm_ident $3 > ${2}.log
 
 echo "Done!"

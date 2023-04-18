@@ -12,9 +12,11 @@ limit_train="0" # 0 means no limit
 cont="" # use as -c $MODEL_FOLDER to continue training
 
 # Model and training variables
-lm_ident="xlm-roberta-large" # You can specify a different one in your own config as well
+lm_ident="xlm-roberta-base" # You can specify a different one in your own config as well
 strategy="epoch"
-batch_size="64"
+save_strategy="epoch"
+eval_steps="500"
+batch_size="32"
 patience="1" # Earlystopping patience
 learning_rate="1e-5"
 weight_decay="0"
@@ -29,4 +31,4 @@ eval_accumulation_steps="250"
 dropout="0.1"
 seed="1234"
 ignore_data="" # add as "--ignore_data_skip"
-max_length="100"
+max_length="256"

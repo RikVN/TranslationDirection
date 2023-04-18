@@ -5,3 +5,4 @@ torch
 pandas
 unidecode
 sacrebleu
+matplotlib

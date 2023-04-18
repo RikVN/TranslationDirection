@@ -10,6 +10,8 @@ import torch
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, \
                          Trainer, TrainingArguments, EarlyStoppingCallback
+sys.stdin.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding='utf-8')
 
 
 def create_arg_parser():
@@ -22,10 +24,10 @@ def create_arg_parser():
                         help="Write output(s) to this folder")
     parser.add_argument("-c", "--cont", type=str, default='',
                         help="Continue training from this model folder")
-    parser.add_argument("-lm", "--lm_ident", type=str, default="xlm-roberta-large",
+    parser.add_argument("-lm", "--lm_ident", type=str, default="xlm-roberta-base",
                         help="Language model identifier (default XLM-R")
     parser.add_argument("-l", "--limit_train", default=0, type=int,
-                        help="Limit training set to this amount of instances (default 0 means no limit)")
+                        help="Limit training set to this many instances (default 0 means no limit)")
     # Arguments for training a model
     parser.add_argument("-pa", "--padding", default="max_length", type=str,
                         help="How to do the padding: max_length (default) or longest")
@@ -35,6 +37,8 @@ def create_arg_parser():
                         help="Where we save models and output files")
     parser.add_argument("-str", "--strategy", type=str, choices=["no", "steps", "epoch"],
                         default="epoch", help="Strategy for evaluating/saving/logging")
+    parser.add_argument("-ss", "--save_strategy", type=str, choices=["no", "steps", "epoch"],
+                        default="no", help="Strategy for saving models")
     parser.add_argument("-bs", "--batch_size", default=12, type=int,
                         help="Batch size per device")
     parser.add_argument("-p", "--patience", default=1, type=int,
@@ -55,7 +59,9 @@ def create_arg_parser():
                         help="Ignore data skip when continuing training")
     parser.add_argument("-ls", "--label_smoothing", default=0.1, type=float,
                         help="Label smoothing percentage, 0-1")
-    parser.add_argument("-eas", "--eval_accumulation_steps", default=500, type=int,
+    parser.add_argument("-es", "--eval_steps", default=500, type=int,
+                        help="Evaluate after how many steps? Only works with -str steps")
+    parser.add_argument("-eas", "--eval_accumulation_steps", default=250, type=int,
                         help="Number of steps to accumulate during evaluation")
     parser.add_argument("-gc", "--grad_check", action="store_true",
                         help="Use gradient checkpointing (slower, but more memory efficient)")
@@ -78,11 +84,12 @@ def get_training_arguments(args, model_dir):
     '''Load all training arguments here. There are a lot more not specified, check:
     https://github.com/huggingface/transformers/blob/master/src/transformers/training_args.py#L72'''
     return TrainingArguments(model_dir, evaluation_strategy=args.strategy,
-           per_device_train_batch_size=args.batch_size, per_device_eval_batch_size=args.batch_size,
-           learning_rate=args.learning_rate, weight_decay=args.weight_decay,
-           max_grad_norm=args.max_grad_norm, num_train_epochs=args.num_train_epochs,
-           warmup_ratio=args.warmup_ratio, logging_strategy=args.strategy, save_strategy=args.strategy,
-           seed=args.seed, load_best_model_at_end=True, label_smoothing_factor=args.label_smoothing,
+           eval_steps=args.eval_steps, per_device_train_batch_size=args.batch_size,
+           per_device_eval_batch_size=args.batch_size, learning_rate=args.learning_rate,
+           weight_decay=args.weight_decay, max_grad_norm=args.max_grad_norm,
+           num_train_epochs=args.num_train_epochs, warmup_ratio=args.warmup_ratio,
+           logging_strategy=args.strategy, save_strategy=args.save_strategy, seed=args.seed,
+           load_best_model_at_end=True, label_smoothing_factor=args.label_smoothing,
            adafactor=args.adafactor, gradient_checkpointing=args.grad_check,
            eval_accumulation_steps=args.eval_accumulation_steps, log_level="debug",
            metric_for_best_model='accuracy', save_total_limit=1, ignore_data_skip=args.ignore_data_skip)
@@ -106,10 +113,10 @@ class DirectionDataset(torch.utils.data.Dataset):
 def read_data(corpus_file, limit_train):
     '''Read in document and label (tab-separated)'''
     documents, labels = [], []
-    for line in open(corpus_file, 'r'):
+    for line in open(corpus_file, 'r', encoding="utf-8"):
         l = line.strip().split('\t')
-        if len(l) > 3:
-            raise ValueError("Data lines should contain 3 tabs, this has:\n {0}".format(line.strip()))
+        if len(l) != 3:
+            raise ValueError(f"Data lines should contain 3 tabs, this has:\n {line.strip()}")
         documents.append([l[0], l[1]])
         labels.append(l[2])
     if limit_train:
@@ -121,7 +128,7 @@ def read_data(corpus_file, limit_train):
 def read_test_data(test_file):
     '''Read in test data: might not have labels, but could'''
     X_test, Y_test = [], []
-    for idx, line in enumerate(open(test_file, 'r')):
+    for idx, line in enumerate(open(test_file, 'r', encoding="utf-8")):
         # Check for first line if there are labels
         if idx == 0:
             has_labels = len(line.split('\t')) == 3
@@ -178,7 +185,7 @@ def process_data(in_file, limit_train, lm_ident, padding, max_length, uniq_label
     # Determine the labels in an order we can get back if needed
     if not uniq_labels:
         uniq_labels = get_uniq_labels(Y_data)
-        print ("Labels:\n{0}\n".format(", ".join(uniq_labels)))
+        print (f"Labels:\n{', '.join(uniq_labels)}\n")
 
     # Convert labels to numbers to avoid errors
     Y_data = [uniq_labels.index(x) for x in Y_data]
@@ -198,7 +205,8 @@ def main():
     train_data, Y_train, uniq_labels = process_data(args.train_file, args.limit_train,
                                        args.lm_ident, args.padding, args.max_length, [])
     # Read in dev data
-    dev_data, _, _ = process_data(args.dev_file, args.limit_train, args.lm_ident, args.padding, args.max_length, uniq_labels)
+    dev_data, _, _ = process_data(args.dev_file, args.limit_train, args.lm_ident,
+                                  args.padding, args.max_length, uniq_labels)
 
     # Setup variables
     num_labels = len(set(Y_train))
@@ -215,7 +223,7 @@ def main():
     print("Generated by command:\npython", " ".join(sys.argv))
     print("Logging training settings\n", training_args)
 
-    # Set EarlyStopping with patience of 1, since we evaluate on accuracy each epoch and have lots of data
+    # Set EarlyStopping with patience of 1, since we evaluate each epoch, with a lot of data
     callbacks = [EarlyStoppingCallback(early_stopping_patience=args.patience)]
     trainer = Trainer(model=model, args=training_args, train_dataset=train_data,
                       eval_dataset=dev_data, compute_metrics=compute_metrics, callbacks=callbacks)

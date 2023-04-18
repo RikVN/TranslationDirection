@@ -17,7 +17,7 @@ def create_arg_parser():
                         help="Folder in which we find all the files")
     parser.add_argument("-o", "--output_file", required=True, type=str,
                         help="Output file to write to")
-    parser.add_argument("-t", "--tokenizer_id", default="xlm-roberta-large", type=str,
+    parser.add_argument("-t", "--tokenizer_id", default="xlm-roberta-base", type=str,
                         help="Lang model ID of the tokenizer we will use")
     parser.add_argument("-m", "--max_len", default=500, type=int,
                         help="Max length of a document - 0 means do sentence level")

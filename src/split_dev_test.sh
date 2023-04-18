@@ -62,27 +62,3 @@ for file in ${1}/*tab; do
     # Now do the actual splitting, and save in train/ dev/ and test/ folders
     split_data $file $size $2
 done
-
-# Combine the language directions into a single file for evaluation
-cd $2
-for data_type in dev test; do
-    cd $data_type
-    for lang in bg cs da de el es et fi fr hu it lt lv nl pl pt ro sk sl sv ; do
-        for file_type in sent doc; do
-            cat ${lang}-en.${file_type}.tab en-${lang}.${file_type}.tab | shuf > both.${lang}.en.${file_type}.shuf
-            cat both.${lang}.en.${file_type}.shuf | python ../../../../src/randomize_order.py > both.${lang}.en.${file_type}.shuf.frm
-        done
-    done
-    cd ../
-done
-
-# Also create one that combines *all* languages for during training and evaluation
-for data_type in dev test; do
-    cd $data_type
-    for file_type in sent doc; do
-        cat *${file_type}*tab | shuf > all.${file_type}.tab
-        shuf all.${file_type}.tab > all.${file_type}.tab.shuf
-        cat all.${file_type}.tab.shuf | python ../../../../src/randomize_order.py > all.${file_type}.tab.shuf.frm
-    done
-    cd ../
-done
