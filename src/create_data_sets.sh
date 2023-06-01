@@ -9,7 +9,7 @@ ident=$2
 
 # Files with translations such as ${file}.opus should exist. If not, create them using ./src/translate.sh
 # You can also change the arguments here, e.g. if you only have opus and nllb just remove m2m
-mt_systems="opus nllb m2m"
+mt_systems="opus nllb"
 
 # Now create data sets for all the different settings
 # If you don't care about all settings, just remove them
