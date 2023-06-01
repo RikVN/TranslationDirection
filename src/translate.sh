@@ -38,7 +38,7 @@ for model in opus nllb m2m; do
 
             # Write to specific output file
             out_file="${fol}${base}.${model}"
-            echo python src/translate.py --sent_file $file -sl $src_lang -tl $tgt_lang -o $out_file -m $model -tf -ml $max_length -b $batch_size #> ${fol}/${base}.${model}.log
+            python src/translate.py --sent_file $file -sl $src_lang -tl $tgt_lang -o $out_file -m $model -tf -ml $max_length -b $batch_size > ${fol}/${base}.${model}.log
         fi
     done
 done
